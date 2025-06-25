@@ -32,7 +32,7 @@
             {% for book in results %}
                 <tr>
                     <td>{{ book.book_id }}</td>
-                    <td>{{ book.title }}</td>
+                    <td><a href="/book/{{ book.book_id }}">{{ book.title }}</a></td>
                     <td>{{ book.author }}</td>
                     <td>{{ book.publisher }}</td>
                     <td>{{ book.borrower if book.borrower else '无' }}</td>

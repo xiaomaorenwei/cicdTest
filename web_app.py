@@ -65,5 +65,14 @@ def about():
 def contact():
     return render_template('contact.html')
 
+@app.route('/book/<book_id>')
+def book_detail(book_id):
+    book = library.find_book(book_id)
+    if book:
+        return render_template('book_detail.html', book=book)
+    else:
+        flash('图书未找到！')
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)
