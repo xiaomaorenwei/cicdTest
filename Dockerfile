@@ -1,5 +1,5 @@
 # 使用官方 Python 镜像作为基础环境
-FROM registry.cn-hangzhou.aliyuncs.com/google_containers/python:3.11-slim
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/python:3.11-slim
 
 # 设置工作目录
 WORKDIR /app
