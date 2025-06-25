@@ -11,8 +11,13 @@ library = Library()
 
 @app.route('/')
 def index():
-    books = library.list_all_books()
+    books = library.get_all_books()
     return render_template('index.html', books=books)
+
+@app.route('/stats')
+def stats():
+    total_books = len(library.get_all_books())
+    return render_template('stats.html', total_books=total_books)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_book():
