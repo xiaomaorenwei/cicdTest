@@ -19,6 +19,11 @@ def stats():
     total_books = len(library.get_all_books())
     return render_template('stats.html', total_books=total_books)
 
+@app.route('/recent')
+def recent_books():
+    recent_books = library.get_recent_books()
+    return render_template('recent_books.html', recent_books=recent_books)
+
 @app.route('/add', methods=['GET', 'POST'])
 def add_book():
     if request.method == 'POST':
