@@ -1,13 +1,8 @@
-FROM ubuntu:22.04
-
-# 手动安装 python
-RUN apt update && apt install -y python3 python3-pip
-
-# 复制你本地的代码和依赖
-COPY ./app /app
+FROM scratch
 COPY ./venv /venv
+COPY ./app /app
 
-WORKDIR /app
 ENV PATH="/venv/bin:$PATH"
+WORKDIR /app
 
-CMD ["python3", "main.py"]
+CMD ["python", "main.py"]
