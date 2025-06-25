@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索图书</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>搜索图书</h2>
+    <form method="post" class="mb-3">
+        <div class="input-group">
+            <input type="text" class="form-control" name="keyword" placeholder="请输入关键词" value="{{ keyword }}" required>
+            <button type="submit" class="btn btn-primary">搜索</button>
+            <a href="/" class="btn btn-secondary">返回</a>
+        </div>
+    </form>
+    {% if results %}
+        <h4>搜索结果：</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>出版社</th>
+                    <th>借阅人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for book in results %}
+                <tr>
+                    <td>{{ book.book_id }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.publisher }}</td>
+                    <td>{{ book.borrower if book.borrower else '无' }}</td>
+                    <td>
+                        <a href="/delete/{{ book.book_id }}" class="btn btn-danger btn-sm">删除</a>
+                        {% if not book.borrower %}
+                            <a href="/borrow/{{ book.book_id }}" class="btn btn-success btn-sm">借阅</a>
+                        {% else %}
+                            <a href="/return/{{ book.book_id }}" class="btn btn-warning btn-sm">归还</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% elif keyword %}
+        <div class="alert alert-warning">未找到匹配的图书</div>
+    {% endif %}
+</div>
+</body>
+</html>
