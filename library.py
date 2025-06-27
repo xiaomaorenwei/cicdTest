@@ -174,3 +174,14 @@ class Library:
         print(f"图书 '{book.title}' 已由 {borrower} 归还")
         self.save_data()
         return True
+    
+    def get_recent_books(self, count=5):
+        """获取最近添加的图书
+        
+        参数:
+            count (int): 返回的图书数量，默认为5
+            
+        返回:
+            list: 最近添加的图书对象列表
+        """
+        return list(self.books.values())[-count:]

@@ -11,12 +11,12 @@ library = Library()
 
 @app.route('/')
 def index():
-    books = library.get_all_books()
+    books = library.list_all_books()
     return render_template('index.html', books=books)
 
 @app.route('/stats')
 def stats():
-    total_books = len(library.get_all_books())
+    total_books = len(library.list_all_books())
     return render_template('stats.html', total_books=total_books)
 
 @app.route('/recent')

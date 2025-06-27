@@ -5,6 +5,9 @@ import os
 import sys
 from book import Book
 from library import Library
+print("hello,world")
+print("hello,world")
+print("hello,world")
 
 class LibrarySystem:
     """图书管理系统，提供命令行界面"""
