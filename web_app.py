@@ -84,5 +84,9 @@ def book_detail(book_id):
         flash('图书未找到！')
         return redirect(url_for('index'))
 
+@app.route('/game')
+def connect_four_game():
+    return render_template('connect_four.html')
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
