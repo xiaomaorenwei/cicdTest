@@ -8,23 +8,26 @@
     <style>
         .game-board {
             display: grid;
-            grid-template-columns: repeat(7, 60px);
-            grid-template-rows: repeat(6, 60px);
-            gap: 2px;
+            grid-template-columns: repeat(50, 20px);
+             grid-template-rows: repeat(50, 20px);
+            gap: 1px;
             background-color: #0066cc;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 5px;
+            border-radius: 15px;
             margin: 20px auto;
             width: fit-content;
+            max-width: 90vw;
+            overflow: auto;
         }
         .cell {
-            width: 60px;
-            height: 60px;
+            width: 20px;
+            height: 20px;
             background-color: white;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
         .cell:hover {
             background-color: #f0f0f0;
@@ -35,136 +38,198 @@
         .cell.yellow {
             background-color: #ffdd44;
         }
+        .column-preview {
+            background-color: rgba(255, 221, 68, 0.4) !important;
+        }
         .game-info {
             text-align: center;
             margin: 20px 0;
         }
         .current-player {
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: bold;
             margin: 10px 0;
         }
-        .winner {
-            font-size: 1.5em;
-            color: #28a745;
-            font-weight: bold;
+        .game-status {
+            font-size: 1.3em;
+            margin: 15px 0;
+        }
+        .btn-restart {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1.1em;
+        }
+        .back-btn {
+            margin: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
+    <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1 class="text-center mb-4">七子棋游戏</h1>
+                <a href="/" class="btn btn-secondary back-btn">← 返回首页</a>
+                <h1 class="text-center mb-4">五子棋游戏</h1>
                 
                 <div class="game-info">
-                    <div id="current-player" class="current-player">当前玩家: <span id="player-color">红色</span></div>
-                    <div id="game-status"></div>
-                    <button id="reset-btn" class="btn btn-primary mt-2">重新开始</button>
+                    <div class="current-player" id="current-player">当前玩家: 红色</div>
+                    <div class="game-status" id="game-status">点击任意位置放置棋子</div>
+                    <button class="btn btn-primary btn-restart" onclick="game.resetGame()">重新开始</button>
                 </div>
                 
-                <div id="game-board" class="game-board"></div>
-                
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('index') }}" class="btn btn-secondary">返回首页</a>
-                </div>
+                <div class="game-board" id="game-board"></div>
             </div>
         </div>
     </div>
 
     <script>
-        class ConnectFour {
+        class ConnectSevenGame {
             constructor() {
-                this.board = Array(6).fill().map(() => Array(7).fill(0));
+                this.board = [];
                 this.currentPlayer = 1; // 1 for red, 2 for yellow
                 this.gameOver = false;
-                this.initBoard();
-                this.updatePlayerDisplay();
+                this.rows = 50;
+                  this.cols = 50;
+                  this.winLength = 7; // 需要7个棋子连成一线
+                this.initGame();
             }
 
-            initBoard() {
+            initGame() {
+                // Initialize empty board
+                this.board = [];
+                for (let row = 0; row < this.rows; row++) {
+                    this.board[row] = [];
+                    for (let col = 0; col < this.cols; col++) {
+                        this.board[row][col] = 0;
+                    }
+                }
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.createBoard();
+                this.updateDisplay();
+            }
+
+            createBoard() {
                 const boardElement = document.getElementById('game-board');
                 boardElement.innerHTML = '';
                 
-                for (let row = 0; row < 6; row++) {
-                    for (let col = 0; col < 7; col++) {
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
                         const cell = document.createElement('button');
                         cell.className = 'cell';
                         cell.dataset.row = row;
                         cell.dataset.col = col;
-                        cell.addEventListener('click', () => this.makeMove(col));
+                        
+                        // 添加点击事件
+                         cell.addEventListener('click', () => {
+                             this.placePiece(row, col);
+                         });
+                         
+                         // 添加悬停效果
+                         cell.addEventListener('mouseenter', () => {
+                             this.showCellPreview(row, col, true);
+                         });
+                         
+                         cell.addEventListener('mouseleave', () => {
+                             this.showCellPreview(row, col, false);
+                         });
+                        
                         boardElement.appendChild(cell);
                     }
                 }
             }
 
-            makeMove(col) {
-                if (this.gameOver) return;
-                
-                // Find the lowest empty row in the column
-                for (let row = 5; row >= 0; row--) {
-                    if (this.board[row][col] === 0) {
-                        this.board[row][col] = this.currentPlayer;
-                        this.updateCell(row, col);
-                        
-                        if (this.checkWin(row, col)) {
-                            this.endGame(`${this.currentPlayer === 1 ? '红色' : '黄色'}玩家获胜！`);
-                            return;
-                        }
-                        
-                        if (this.checkDraw()) {
-                            this.endGame('平局！');
-                            return;
-                        }
-                        
-                        this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
-                        this.updatePlayerDisplay();
-                        return;
-                    }
-                }
-            }
+            showCellPreview(row, col, show) {
+                 if (this.gameOver || this.board[row][col] !== 0) return;
+                 
+                 const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                 if (show) {
+                     cell.classList.add('column-preview');
+                 } else {
+                     cell.classList.remove('column-preview');
+                 }
+             }
+
+             placePiece(row, col) {
+                 if (this.gameOver || this.board[row][col] !== 0) return;
+                 
+                 // 放置棋子
+                 this.board[row][col] = this.currentPlayer;
+                 this.updateCell(row, col);
+                 
+                 // 检查获胜
+                 if (this.checkWin(row, col)) {
+                     this.gameOver = true;
+                     document.getElementById('game-status').textContent = 
+                         `${this.currentPlayer === 1 ? '红色' : '黄色'}玩家获胜！`;
+                     return;
+                 }
+                 
+                 // 检查平局
+                 if (this.checkDraw()) {
+                     this.gameOver = true;
+                     document.getElementById('game-status').textContent = '平局！';
+                     return;
+                 }
+                 
+                 // 切换玩家
+                 this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                 this.updateDisplay();
+             }
 
             updateCell(row, col) {
                 const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                cell.classList.remove('column-preview');
                 cell.className = `cell ${this.currentPlayer === 1 ? 'red' : 'yellow'}`;
             }
 
-            checkWin(row, col) {
-                const directions = [
-                    [0, 1],   // horizontal
-                    [1, 0],   // vertical
-                    [1, 1],   // diagonal /
-                    [1, -1]   // diagonal \
-                ];
+            updateDisplay() {
+                if (!this.gameOver) {
+                    document.getElementById('current-player').textContent = 
+                        `当前玩家: ${this.currentPlayer === 1 ? '红色' : '黄色'}`;
+                    document.getElementById('game-status').textContent = '点击任意位置放置棋子';
+                }
+            }
 
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                const directions = [
+                    [0, 1],   // 水平
+                    [1, 0],   // 垂直
+                    [1, 1],   // 对角线 \\
+                    [1, -1]   // 对角线 /
+                ];
+                
                 for (let [dx, dy] of directions) {
-                    let count = 1;
+                    let count = 1; // 包含当前棋子
                     
-                    // Check positive direction
-                    for (let i = 1; i < 4; i++) {
+                    // 向一个方向检查
+                    for (let i = 1; i < this.winLength; i++) {
                         const newRow = row + dx * i;
                         const newCol = col + dy * i;
-                        if (newRow >= 0 && newRow < 6 && newCol >= 0 && newCol < 7 && 
-                            this.board[newRow][newCol] === this.currentPlayer) {
+                        if (newRow >= 0 && newRow < this.rows && 
+                            newCol >= 0 && newCol < this.cols && 
+                            this.board[newRow][newCol] === player) {
                             count++;
                         } else {
                             break;
                         }
                     }
                     
-                    // Check negative direction
-                    for (let i = 1; i < 4; i++) {
+                    // 向相反方向检查
+                    for (let i = 1; i < this.winLength; i++) {
                         const newRow = row - dx * i;
                         const newCol = col - dy * i;
-                        if (newRow >= 0 && newRow < 6 && newCol >= 0 && newCol < 7 && 
-                            this.board[newRow][newCol] === this.currentPlayer) {
+                        if (newRow >= 0 && newRow < this.rows && 
+                            newCol >= 0 && newCol < this.cols && 
+                            this.board[newRow][newCol] === player) {
                             count++;
                         } else {
                             break;
                         }
                     }
                     
-                    if (count >= 4) {
+                    if (count >= this.winLength) {
                         return true;
                     }
                 }
@@ -173,38 +238,23 @@
             }
 
             checkDraw() {
-                return this.board[0].every(cell => cell !== 0);
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
+                        if (this.board[row][col] === 0) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
             }
 
-            updatePlayerDisplay() {
-                const playerColor = document.getElementById('player-color');
-                playerColor.textContent = this.currentPlayer === 1 ? '红色' : '黄色';
-                playerColor.style.color = this.currentPlayer === 1 ? '#ff4444' : '#ffdd44';
-            }
-
-            endGame(message) {
-                this.gameOver = true;
-                const gameStatus = document.getElementById('game-status');
-                gameStatus.innerHTML = `<div class="winner">${message}</div>`;
-            }
-
-            reset() {
-                this.board = Array(6).fill().map(() => Array(7).fill(0));
-                this.currentPlayer = 1;
-                this.gameOver = false;
-                this.initBoard();
-                this.updatePlayerDisplay();
-                document.getElementById('game-status').innerHTML = '';
+            resetGame() {
+                this.initGame();
             }
         }
 
-        // Initialize game
-        const game = new ConnectFour();
-        
-        // Reset button event
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            game.reset();
-        });
+        // 创建游戏实例
+        const game = new ConnectSevenGame();
     </script>
 </body>
 </html>
