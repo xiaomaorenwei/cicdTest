@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七子棋游戏 - 图书管理系统</title>
+    <title>7子棋游戏</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .game-board {
@@ -69,7 +69,7 @@
         <div class="row">
             <div class="col-12">
                 <a href="/" class="btn btn-secondary back-btn">← 返回首页</a>
-                <h1 class="text-center mb-4">五子棋游戏</h1>
+                <h1 class="text-center mb-4">7子棋游戏</h1>
                 
                 <div class="game-info">
                     <div class="current-player" id="current-player">当前玩家: 红色</div>
@@ -161,7 +161,7 @@
                  if (this.checkWin(row, col)) {
                      this.gameOver = true;
                      document.getElementById('game-status').textContent = 
-                         `${this.currentPlayer === 1 ? '红色' : '黄色'}玩家获胜！`;
+                         `${this.currentPlayer === 1 ? '红色' : '黄色'}玩家获胜！7子连珠！`;
                      return;
                  }
                  
